@@ -10,3 +10,9 @@ services:
       - .:/var/www
       - ./vendor:/var/www/vendor
       - ./docker/app/php.ini:/usr/local/etc/php/php.ini
+
+  redis:
+      image: redis:latest
+      container_name: redis_for_laravel_octance
+      ports:
+          -   "63792:6379"

@@ -8,5 +8,5 @@ Route::get('/', function () {
 
 Route::get('/health', function () {
     return 'OK';
-});
+})->middleware('token_bucket');
 
