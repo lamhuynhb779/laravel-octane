@@ -1,0 +1,47 @@
+FROM php:8.3-fpm
+
+# Set working directory
+WORKDIR /var/www
+
+# Copy custom php.ini
+COPY php.ini /usr/local/etc/php/
+
+# Install system dependencies
+RUN apt update && apt install -y \
+    wget \
+    git \
+    unzip \
+    zlib1g-dev \
+    libpq-dev \
+    mariadb-client \
+    libzip-dev \
+    libonig-dev \
+    npm \
+    procps \
+    && apt clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Use Node.js 18 via n
+RUN npm install -g n && n 18
+
+# Install PHP extensions
+RUN docker-php-ext-install zip pdo_mysql sockets pcntl
+
+# Install Redis extension
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Install Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php \
+    && mv composer.phar /usr/local/bin/composer \
+    && composer self-update
+
+# Set appropriate permissions
+RUN chown -R www-data:www-data /var/www
+
+# Optional: Install Laravel Installer globally for development
+RUN composer global require "laravel/installer"
