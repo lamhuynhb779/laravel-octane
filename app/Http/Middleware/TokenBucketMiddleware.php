@@ -27,16 +27,12 @@ class TokenBucketMiddleware
             'last_refill' => now()->timestamp
         ]);
 
+        // Refill tokens based on elapsed time
+        // Calculate how many tokens to add since last refill
         $now = now()->timestamp;
         $elapsed = $now - $bucket['last_refill'];
-
-        Log::info("data", [
-            $elapsed, $bucket['tokens']
-        ]);
-
-        // Refill tokens based on elapsed time
-        $newTokens = $bucket['tokens'] + ($elapsed * $this->refillRate);
-        $bucket['tokens'] = min($this->capacity, $newTokens);
+        $newTokens = $elapsed * $this->refillRate;
+        $bucket['tokens'] = min($this->capacity, $bucket['tokens'] + $newTokens);
         $bucket['last_refill'] = $now;
 
         if ($bucket['tokens'] < 1) {
@@ -44,8 +40,7 @@ class TokenBucketMiddleware
         }
 
         $bucket['tokens'] -= 1;
-
-        Cache::put($key, $bucket, now()->addMinutes(1)); // Short TTL since we refresh often
+        Cache::put($key, $bucket, 60); // Short TTL since we refresh often (60 seconds)
 
         return $next($request);
     }
