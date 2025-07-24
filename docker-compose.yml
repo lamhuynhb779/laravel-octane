@@ -3,13 +3,13 @@ version: '3'
 services:
   app:
     container_name: app_laravel12
-    build: ./docker/app
+    build: .
     ports:
         -   "8000:8000"
     volumes:
       - .:/var/www
       - ./vendor:/var/www/vendor
-      - ./docker/app/php.ini:/usr/local/etc/php/php.ini
+      - ./php.ini:/usr/local/etc/php/php.ini
 
   redis:
       image: redis:latest
