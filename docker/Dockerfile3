@@ -28,15 +28,9 @@ RUN apk add --no-cache --virtual .build-deps \
 # Install Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Copy only composer files first (for caching)
-COPY composer.json composer.lock ./
-
-# Install PHP dependencies (vendor)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
-
-# Now copy the rest of the app
+# Copy application code and install dependencies
 COPY . .
-RUN composer run-script post-autoload-dump
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # --- Stage 2: Runtime (Alpine, minimal) ---
 FROM php:8.2-cli-alpine AS runtime
